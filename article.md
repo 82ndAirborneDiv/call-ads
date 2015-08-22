@@ -1,11 +1,11 @@
-@@ Title=Creating a Click to Call call center with Flybase, Twilio Client and Node.js
-@@ Date=2015-08-22 07:00
-@@ Tags=code, twilio
-@@ Image=http://blog.flybase.io/images/posts/call-center.jpg
+Creating a Click to Call call center with Flybase, Twilio Client and Node.js
 
-<div class="box-wrap"><div class="box">
-	<img src="/images/posts/call-center.jpg" />
-</div></div>
+This post will cover some interesting areas of both Flybase and Twilio, we're going to build a "Click to Call" Call Center, where visitors to a page displaying products can click a product and begin a Twilio client call with agents on another web page.
+
+To do this, we are going to use Flybase's custom events.
+
+_This tutorial is based on a [post](https://www.twilio.com/blog/2014/07/creating-a-click-to-call-service-with-twilio-client-pusher-and-python.html) from Twilio last year on using Pusher, Twilio and Python to build a similar system, but ours will be a little simpler thanks to having less systems involved._
+
 
 ### Let's talk briefly about Flybase's Custom Events
 
@@ -29,8 +29,6 @@ Custom events are meant to be used when you want to pass data between devices bu
 
 **Click To Call** allows customers to click a link and start an in-browser voice call with a human. While that voice call is being established, contextual information about the customer (such as the item they are looking at, or their name / interests / Facebook likes) is passed over to the person handling the call, who can then provide a highly personalized experience. The customer doesn’t need to tell them their name, or the product / service they’re interested in: Click to Call does this all for you. It gets rid of the annoying parts of call centers and lets you get on with what’s important to you.
 
-_This tutorial is based on a [post](https://www.twilio.com/blog/2014/07/creating-a-click-to-call-service-with-twilio-client-pusher-and-python.html) from Twilio last year on using Pusher, Twilio and Python to build a similar system, but ours will be a little simpler thanks to having less systems involved._
-
 ### Ingredients
 
 We’ll be using a few tools to build this app. You’ll want to have these set up before you continue on:
@@ -49,7 +47,7 @@ Twilio is our every handy phone API, which lets us build services like an sms ap
 
 Let’s start by creating a TwiML app. What is a TwiML app? It’s a reusable TwiML configuration that can be applied to Twilio phone numbers or TwiML applications. Each TwiML app has a unique SID which we use to generate security tokens for Twilio Client.
 
-Head over to the [apps page](https://www.twilio.com/user/account/apps) on your account and create a new app by clicking ‘Create TwiML App’:
+Head over to the [apps page](https://www.twilio.com/user/account/apps) on your account and create a new app by clicking ‘Create TwiML App’.
 
 We’re calling our TwiML App ‘Click to Call demo’. You’ll need to link the Voice Request URL to a URL on your website. We’ll hit save and this will generate an SID for the TwiML app which we will use later on, so keep it handy.
 
@@ -251,7 +249,9 @@ var server = app.listen(port, function() {
 });
 ```
 
-One thing we did to show tracking, if you access the page with a `?client=myname` variable appended to it, then the name of the client changes, this is to demonstrate passing contextual information.
+The `/cc` and `/` routes both make calls to Twilio to create capability tokens for the Twilio Client, these let the web page make and receive calls.
+
+There was one thing we did to show tracking on the home page, if you access the page with a `?client=myname` variable appended to it, then the name of the client changes, this is to demonstrate passing contextual information.
 
 ### Let's set up our templates
 
@@ -321,12 +321,10 @@ First, let's set up `index.ejs`:
 			params = {"item": item_of_choice, "name": "<%= client_name %>"};
 			Twilio.Device.connect(params);
 			$("#hangupbox").show();
-			$("#hangup").show();
 		}
 		function hangup() {
 			Twilio.Device.disconnectAll();
 			$("#hangupbox").hide();
-			$("#hangup").hide();
 		}
 	</script>
 </body>
@@ -334,6 +332,10 @@ First, let's set up `index.ejs`:
 ```
 
 This will display sample products and let a visitor click on one, when they do, it will begin a call to the agent.
+
+The images are in the `public/images` folder and are just some random product images, you can swap them out for any actual images you want to, this just gives you an idea how it works.
+
+The actual brains of this page is the javascript, which takes the passed `call_token` and `client_name` as well as the selected item the user is interested in talking about and begins a browser phone call.
 
 Now, let's set up `cc.ejs`, which is the agent control panel:
 
@@ -387,13 +389,17 @@ Now, let's set up `cc.ejs`, which is the agent control panel:
 
 This will look a little like the `index` file, the difference is that it is for agents to view, when a visitor clicks to begin a call, an alert will appear on the screen and the call will be answered.
 
+In our `app.js` file, we also set it up so that `/cc` was behind a basic password, so only agents can access it.
+
 One last thing to do, Let’s fire up our app:
 
 ```javascript
 node app.js
 ```
 
-We've told our app to run on port `5000`, so if you go to your web browser and type in `http://localhost:5000/` you should see your call center.
+We've told our app to run on port `5000`, so if you go to your web browser and type in `http://localhost:5000/` you should see your call center ad page, and if you go to `http://localhost:5000/cc`, you should see your actual call center, waiting for calls from site visitors.
+
+Clicking an ad from the home page will trigger a call with the call center.
 
 Just an aside, if you’re running this locally, you’ll want to make sure you’ve got ngrok running before you go to the next step. If you haven’t used [ngrok](https://ngrok.com/) before, Kevin Whinnery over at Twilio has put together a [great tutorial](https://www.twilio.com/blog/2013/10/test-your-webhooks-locally-with-ngrok.html) to help you get started.
 
