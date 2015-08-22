@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Control Center</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="//static.twilio.com/libs/twiliojs/1.2/twilio.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="well">
+			<h1>Incoming calls</h1>
+		</div>
+		<br />
+		<div class="well">
+			<div class="list-group">
+				<div class="list-group-item">
+					<h4 class="list-group-item-heading warning"></h4>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="https://cdn.flybase.io/flybase.js?20150817"></script>
+	<script>
+		$(function(){
+			var leadsRef = new Flybase( "<%= api_key %>", "<%= app_name %>", "leads");
+			leadsRef.on("new-caller", function( call ) {
+				$('.warning').val( call['name'] + ' wants a ' + call['item'] );
+			});
+
+			Twilio.Device.setup("<%= token %>");
+			Twilio.Device.incoming(function (conn) {
+				// accept the incoming connection and start two-way audio
+				conn.accept();
+			});
+
+			function hangup() {
+				Twilio.Device.disconnectAll();
+			}
+		});
+	</script>
+</body>
+</html>
