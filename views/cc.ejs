@@ -27,7 +27,7 @@
 		$(function(){
 			var leadsRef = new Flybase( "<%= api_key %>", "<%= app_name %>", "leads");
 			leadsRef.on("new-caller", function( call ) {
-				$('.warning').val( call['name'] + ' wants a ' + call['item'] );
+				$('.warning').val( call.name + ' wants a ' + call.item );
 			});
 
 			Twilio.Device.setup("<%= token %>");
