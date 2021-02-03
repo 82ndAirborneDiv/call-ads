@@ -24,7 +24,7 @@
 		"node-buzz": "~1.1.0",
 		"moment": "~2.5.1",
 		"less-middleware": "~0.2.1-beta",
-		"body-parser" : "~1.4.2",
+		"body-parser" : "~1.19.0",
 		"method-override" : "~2.0.2"	
 	},
 	"engines": {
